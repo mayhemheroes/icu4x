@@ -1,0 +1,7 @@
+project: icu4x
+target: compare-utf16
+
+cmds:
+  - cmd: /compare_utf16
+  - cmd: /compare_utf16_no_inst @@
+    libfuzzer: false

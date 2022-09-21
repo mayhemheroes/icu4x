@@ -6,7 +6,7 @@
 use core::cmp::Ordering;
 use core::convert::TryFrom;
 use icu_collator::AlternateHandling;
-use icu_collator::CollationCaseFirst;
+use icu_collator::CaseFirst;
 use icu_collator::Collator;
 use icu_collator::CollatorOptions;
 use icu_collator::MaxVariable;
@@ -44,7 +44,7 @@ fn compare_icu4x(
 ) -> Ordering {
     let locale: Locale = locale_str.parse().unwrap();
 
-    let collator: Collator = Collator::try_new(locale, options).unwrap();
+    let collator: Collator = Collator::try_new_unstable(locale, &icu_testdata::unstable(), options).unwrap();
     collator.compare_utf16(left, right)
 }
 
@@ -102,9 +102,9 @@ fn compare_icu4c(
         .unwrap();
 
     let case_first = match options.case_first() {
-        CollationCaseFirst::UpperFirst => UColAttributeValue::UCOL_UPPER_FIRST,
-        CollationCaseFirst::LowerFirst => UColAttributeValue::UCOL_LOWER_FIRST,
-        CollationCaseFirst::Off => UColAttributeValue::UCOL_OFF,
+        CaseFirst::UpperFirst => UColAttributeValue::UCOL_UPPER_FIRST,
+        CaseFirst::LowerFirst => UColAttributeValue::UCOL_LOWER_FIRST,
+        CaseFirst::Off => UColAttributeValue::UCOL_OFF,
     };
     collator
         .set_attribute(UColAttribute::UCOL_CASE_FIRST, case_first)
