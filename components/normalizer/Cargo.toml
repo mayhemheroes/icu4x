@@ -5,72 +5,64 @@
 [package]
 name = "icu_normalizer"
 description = "API for normalizing text into Unicode Normalization Forms"
-categories.workspace = true
-keywords = ["unicode", "normalization", "text-processing"]
+version = "1.0.0-beta1"
+authors = ["The ICU4X Project Developers"]
+edition = "2018"
+readme = "README.md"
+repository = "https://github.com/unicode-org/icu4x"
+license = "Unicode-DFS-2016"
+categories = ["internationalization"]
+# Keep this in sync with other crates unless there are exceptions
+include = [
+    "src/**/*",
+    "examples/**/*",
+    "benches/**/*",
+    "tests/**/*",
+    "Cargo.toml",
+    "LICENSE",
+    "README.md"
+]
 
-authors.workspace = true
-edition.workspace = true
-homepage.workspace = true
-include.workspace = true
-repository.workspace = true
-rust-version.workspace = true
-version.workspace = true
-license.workspace = true
+[package.metadata.cargo-all-features]
+skip_optional_dependencies = true
+# Bench feature gets tested separately and is only relevant for CI
+denylist = ["bench"]
 
 [package.metadata.docs.rs]
 all-features = true
 
-[package.metadata.cargo-all-features]
-max_combination_size = 3
-
 [dependencies]
-harfbuzz-traits = { workspace = true, optional = true }
-icu_collections = { workspace = true }
-icu_properties = { workspace = true, optional = true }
-icu_provider = { workspace = true }
-smallvec = { workspace = true } # alloc
-utf16_iter = { workspace = true, optional = true }
-utf8_iter = { workspace = true, optional = true }
-write16 = { workspace = true, features = ["alloc"], optional = true }
-zerovec = { workspace = true }
-
-databake = { workspace = true, features = ["derive"], optional = true }
-serde = { workspace = true, features = ["derive", "alloc"], optional = true }
-
-icu_normalizer_data = { workspace = true, optional = true }
+smallvec = "1.9.0"
+displaydoc = { version = "0.2.3", default-features = false }
+icu_collections = { version = "1.0.0-beta1", path = "../../components/collections" }
+icu_provider = { version = "1.0.0-beta1", path = "../../provider/core", features = ["macros"] }
+serde = { version = "1.0", default-features = false, features = ["derive", "alloc"], optional = true }
+zerovec = { version = "0.8", path = "../../utils/zerovec" }
+icu_properties = { version = "1.0.0-beta1", path = "../../components/properties" }
+utf8_iter = "1.0.1"
+utf16_iter = "1.0.3"
+write16 = { version = "1.0", features = ["alloc"] }
+databake = { version = "0.1.0", path = "../../utils/databake", optional = true, features = ["derive"] }
+zerofrom = { version = "0.1.0", path = "../../utils/zerofrom" }
 
 [dev-dependencies]
-arraystring = { workspace = true }
-arrayvec = { workspace = true }
-atoi = { workspace = true }
-detone = { workspace = true }
-icu = { path = "../../components/icu", default-features = false }
-write16 = { workspace = true, features = ["arrayvec", "smallvec"] }
+icu_testdata = { path = "../../provider/testdata", default-features = false, features = ["icu_normalizer", "icu_properties"] }
+atoi = "1.0.0"
+arraystring = "0.3.0"
+arrayvec = "0.7.2"
+write16 = { version = "1.0", features = ["arrayvec"] }
 
-[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-criterion = { workspace = true }
+[lib]
+path = "src/lib.rs"
+bench = false  # This option is required for Benchmark CI
 
 [features]
-default = ["compiled_data", "utf8_iter", "utf16_iter"]
-serde = ["dep:serde", "icu_collections/serde", "zerovec/serde", "icu_properties?/serde", "icu_provider/serde"]
-# n.b. "icu_properties" + "icu_properties?/datagen" is equivalent to "icu_properties/datagen", however
-# we specify this explicitly since "optional_dep/feature" is a footgun that leads to us often accidentally enabling features
-datagen = ["serde", "dep:databake", "icu_properties", "icu_collections/databake", "zerovec/databake", "icu_properties?/datagen", "icu_provider/export"]
-compiled_data = ["dep:icu_normalizer_data", "icu_properties?/compiled_data", "icu_provider/baked"]
-icu_properties = ["dep:icu_properties"]
-# For dealing with UTF16 strings
-utf16_iter = ["dep:utf16_iter", "dep:write16"]
-# For dealing with potentially ill-formed UTF8 strings
-utf8_iter = ["dep:utf8_iter"]
-harfbuzz_traits = ["dep:harfbuzz-traits"]
+default = []
+std = []
+serde = ["dep:serde", "icu_collections/serde", "zerovec/serde", "icu_properties/serde"]
+datagen = ["serde", "databake", "icu_collections/databake", "zerovec/databake", "icu_properties/databake"]
+experimental = []
 
-# added by accident
-write16 = []
-
-[[bench]]
-name = "bench"
-harness = false
-required-features = ["utf16_iter", "utf8_iter"]
-
-[lints]
-workspace = true
+[[test]]
+name = "tests"
+path = "tests/tests.rs"
