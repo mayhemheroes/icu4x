@@ -32,7 +32,7 @@ denylist = ["bench"]
 all-features = true
 
 [dependencies]
-smallvec = "1.6"
+smallvec = "1.9.0"
 displaydoc = { version = "0.2.3", default-features = false }
 icu_collections = { version = "1.0.0-beta1", path = "../../components/collections" }
 icu_provider = { version = "1.0.0-beta1", path = "../../provider/core", features = ["macros"] }
