@@ -23,7 +23,7 @@ fn slice_from_icu4c(string: &UChar) -> &[u16] {
 }
 
 fn normalize_icu4x(buffer: &[u16]) -> Vec<u16> {
-    let normalizer = DecomposingNormalizer::try_new(&icu_testdata::unstable()).unwrap();
+    let normalizer = DecomposingNormalizer::try_new_nfd_unstable(&icu_testdata::unstable()).unwrap(); // (see http://icu4x.unicode.org/doc/icu/normalizer/struct.DecomposingNormalizer.html)
     normalizer.normalize_utf16(buffer)
 }
 
