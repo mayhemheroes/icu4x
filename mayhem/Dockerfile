@@ -1,25 +1,21 @@
 # Build Stage
-FROM ghcr.io/evanrichter/cargo-fuzz:latest as builder
+FROM --platform=linux/amd64 ubuntu:22.04 AS builder
 
-## Dependencies
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y     curl build-essential git pkg-config libicu-dev libclang-dev clang
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly-2025-09-01
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN cargo +nightly-2025-09-01 install -f cargo-fuzz
+
 RUN git clone --depth=1 https://github.com/google/rust_icu
 
-## Add source code to the build stage.
 ADD . /src
-WORKDIR /src
+WORKDIR /src/components/normalizer
 
-RUN echo building instrumented harnesses && \
-    bash -c "pushd components/normalizer/fuzz && cargo +nightly -Z sparse-registry fuzz build && popd" && \
-    mv components/normalizer/fuzz/target/x86_64-unknown-linux-gnu/release/compare_utf16 /compare_utf16 && \
-    echo done
+RUN cargo +nightly-2025-09-01 fuzz build &&     mv fuzz/target/x86_64-unknown-linux-gnu/release/compare_utf16 /compare_utf16
 
-RUN echo building non-instrumented harnesses && \
-    export RUSTFLAGS="--cfg fuzzing -Clink-dead-code -Cdebug-assertions -C codegen-units=1" && \
-    bash -c "pushd components/normalizer/fuzz && cargo +nightly -Z sparse-registry build --release && popd" && \
-    mv components/normalizer/fuzz/target/release/compare_utf16 /compare_utf16_no_inst && \
-    echo done
+RUN RUSTFLAGS="--cfg fuzzing -Clink-dead-code -Cdebug-assertions -C codegen-units=1"     cargo +nightly-2025-09-01 build --release --manifest-path fuzz/Cargo.toml &&     mv fuzz/target/release/compare_utf16 /compare_utf16_no_inst
 
 # Package Stage
-FROM rustlang/rust:nightly
+FROM ubuntu:22.04
 
 COPY --from=builder /compare_utf16 /compare_utf16_no_inst /
