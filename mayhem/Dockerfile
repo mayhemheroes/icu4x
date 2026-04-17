@@ -17,5 +17,6 @@ RUN RUSTFLAGS="--cfg fuzzing -Clink-dead-code -Cdebug-assertions -C codegen-unit
 
 # Package Stage
 FROM ubuntu:22.04
+RUN apt-get update && apt-get install -y libicu70
 
 COPY --from=builder /compare_utf16 /compare_utf16_no_inst /
