@@ -1,0 +1,6 @@
+project: icu4x
+target: calendar-until
+
+cmds:
+  - cmd: /mayhem/until
+    libfuzzer: true

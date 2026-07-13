@@ -1,0 +1,6 @@
+project: icu4x
+target: compare-self
+
+cmds:
+  - cmd: /mayhem/compare_self
+    libfuzzer: true

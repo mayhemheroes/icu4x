@@ -1,0 +1,6 @@
+project: icu4x
+target: calendar-add
+
+cmds:
+  - cmd: /mayhem/add
+    libfuzzer: true

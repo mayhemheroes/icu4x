@@ -1,0 +1,6 @@
+project: icu4x
+target: compare-utf16
+
+cmds:
+  - cmd: /mayhem/compare_utf16
+    libfuzzer: true

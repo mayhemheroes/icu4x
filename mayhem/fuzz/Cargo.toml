@@ -1,0 +1,39 @@
+# Additive port of upstream components/normalizer/fuzz (harness sources copied
+# verbatim). Upstream pins rust_icu "3", which no longer builds against the
+# ICU4C shipped by current Debian (ICU 76) — this crate binds rust_icu "5"
+# instead; the fuzzed code path (icu_normalizer vs ICU4C differential) is
+# unchanged. Upstream stays untouched (purely additive overlay).
+
+[package]
+name = "icu4x-mayhem-fuzz"
+publish = false
+version = "0.0.0"
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+rust_icu_unorm2 = { version = "5", features = ["use-bindgen", "icu_config"] }
+rust_icu_sys = { version = "5", features = ["use-bindgen", "icu_config"] }
+rust_icu_ustring = { version = "5", features = ["use-bindgen", "icu_config"] }
+encoding_rs = "0.8.31"
+icu_normalizer = { path = "../../components/normalizer", features = ["utf16_iter"] }
+utf8_iter = "1.0.1"
+utf16_iter = "1.0.3"
+
+# Prevent this from interfering with workspaces
+[workspace]
+
+[[bin]]
+name = "compare_utf16"
+path = "fuzz_targets/compare_utf16.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "compare_self"
+path = "fuzz_targets/compare_self.rs"
+test = false
+doc = false
